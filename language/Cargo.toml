@@ -1,0 +1,15 @@
+[package]
+name = "rust-language"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+rand = "0.8.5"
+
+[[bin]]
+name = "hello_world"
+path = "src/bin/hello_world.rs"
+
+[[bin]]
+name = "guessing_game"
+path = "src/bin/guessing_game.rs"
