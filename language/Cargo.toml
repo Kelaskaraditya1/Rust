@@ -13,3 +13,36 @@ path = "src/bin/hello_world.rs"
 [[bin]]
 name = "guessing_game"
 path = "src/bin/guessing_game.rs"
+
+[[bin]]
+name = "shadowing"
+path = "src/bin/shadowing.rs"
+
+[[bin]]
+name = "compound_datatypes"
+path = "src/bin/compound_datatypes.rs"
+
+[[bin]]
+name = "functions"
+path = "src/bin/functions.rs"
+
+[[bin]]
+name = "conditional"
+path = "src/bin/conditional.rs"
+
+[[bin]]
+name = "loops"
+path = "src/bin/loops.rs"
+
+[[bin]]
+name = "ownership"
+path = "src/bin/ownership.rs"
+
+[[bin]]
+name = "references"
+path = "src/bin/references.rs"
+
+[[bin]]
+name = "slice_type"
+path = "src/bin/slice_types.rs"
+

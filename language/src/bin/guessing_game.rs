@@ -64,7 +64,10 @@ fn main(){
         },
         Ordering::Greater=>println!("Too Big"),
         Ordering::Less=>println!("Too Small"),
+        }
+
     }
-    }
+
+    
 
 }
