@@ -46,3 +46,19 @@ path = "src/bin/references.rs"
 name = "slice_type"
 path = "src/bin/slice_types.rs"
 
+[[bin]]
+name = "struct"
+path = "src/bin/struct.rs"
+
+[[bin]]
+name = "rectangle"
+path = "src/bin/rectangle.rs"
+
+[[bin]]
+name = "enums"
+path = "src/bin/enums.rs"
+
+[[bin]]
+name = "if_let"
+path = "src/bin/if_let.rs"
+
