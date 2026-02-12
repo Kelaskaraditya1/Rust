@@ -70,3 +70,7 @@ path = "src/bin/vectors.rs"
 name = "string"
 path = "src/bin/string.rs"
 
+[[bin]]
+name = "hashmap"
+path = "src/bin/hashmap.rs"
+
