@@ -74,3 +74,11 @@ path = "src/bin/string.rs"
 name = "hashmap"
 path = "src/bin/hashmap.rs"
 
+[[bin]]
+name = "error_handling"
+path = "src/bin/error_handling.rs"
+
+[[bin]]
+name = "generics"
+path = "src/bin/generics.rs"
+
