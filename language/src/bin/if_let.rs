@@ -32,8 +32,8 @@ fn main(){
 
 fn get_sum(num1:i32, status:bool)->Option<i32>{
     if status{
-        Some((num1+50))
+        Some(num1+50)
     }else{
-        Some((num1))
+        Some(num1)
     }
 }

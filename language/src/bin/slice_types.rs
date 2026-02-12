@@ -19,14 +19,16 @@ let slice = & string[..] , complete string
 
 fn main(){
 
-    let mut name = "Aditye Kelaskar";
+    let mut name = String::from("Aditya Kelaskar");
     let index = get_first_word_length(&name);
     println!("The first word is: {index}");
-    name = "SandeepKelaskar";
+    name.push_str("Aditya Kelaskar");
+
     
 
 
 }
+
 
 // fn first_word(string:String)->String{
 

@@ -62,3 +62,11 @@ path = "src/bin/enums.rs"
 name = "if_let"
 path = "src/bin/if_let.rs"
 
+[[bin]]
+name = "vectors"
+path = "src/bin/vectors.rs"
+
+[[bin]]
+name = "string"
+path = "src/bin/string.rs"
+
