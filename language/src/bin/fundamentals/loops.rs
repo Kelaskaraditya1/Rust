@@ -2,7 +2,7 @@
 
         In rust for using loop we have use loop{} keyword.
 
-        but this is a whiile loop and a infinite loop , so we have to specify the condition for stopping and also the condition for increment and decrement. 
+        but this is a while loop and a infinite loop , so we have to specify the condition for stopping and also the condition for increment and decrement. 
 
         we can use loops for returning the value as an expression as well, like once all iterations of the loop are completed than it gives a value 
         or if we want to break at a certain condition than we can simply break without any value or we can reutrn a value as well

@@ -16,7 +16,7 @@ fn main(){
 
      let name = "Aditya"; // this is a string which is not owned and this can be converted to proper String by using to_string();
     let mut namaste = String::from("नमस्ते");
-    println!("{namaste}");
+    println!("{namaste}",);
 
     namaste.push_str("in hindi");
     namaste.push('.');
@@ -25,6 +25,7 @@ fn main(){
 
     let mut string1 = String::from("Aditya");
     let mut string2 = String::from("Aditya Kekaskar");
+
 
     // let mut name = string1 + &string2;
     // println!("My name is :{name}");

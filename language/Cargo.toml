@@ -8,7 +8,7 @@ rand = "0.8.5"
 
 [[bin]]
 name = "hello_world"
-path = "src/bin/hello_world.rs"
+path = "src/bin/fundamentals/hello_world.rs"
 
 [[bin]]
 name = "guessing_game"
@@ -16,69 +16,85 @@ path = "src/bin/guessing_game.rs"
 
 [[bin]]
 name = "shadowing"
-path = "src/bin/shadowing.rs"
+path = "src/bin/ownership/shadowing.rs"
 
 [[bin]]
-name = "compound_datatypes"
-path = "src/bin/compound_datatypes.rs"
+name = "tuples"
+path = "src/bin/collections/tuples.rs"
 
 [[bin]]
 name = "functions"
-path = "src/bin/functions.rs"
+path = "src/bin/fundamentals/functions.rs"
 
 [[bin]]
 name = "conditional"
-path = "src/bin/conditional.rs"
+path = "src/bin/fundamentals/conditional.rs"
 
 [[bin]]
 name = "loops"
-path = "src/bin/loops.rs"
+path = "src/bin/fundamentals/loops.rs"
 
 [[bin]]
 name = "ownership"
-path = "src/bin/ownership.rs"
+path = "src/bin/ownership/ownership.rs"
 
 [[bin]]
 name = "references"
-path = "src/bin/references.rs"
+path = "src/bin/ownership/references.rs"
 
 [[bin]]
 name = "slice_type"
-path = "src/bin/slice_types.rs"
+path = "src/bin/strings/slice_types.rs"
 
 [[bin]]
 name = "struct"
-path = "src/bin/struct.rs"
+path = "src/bin/oops/struct.rs"
 
 [[bin]]
 name = "rectangle"
-path = "src/bin/rectangle.rs"
+path = "src/bin/oops/rectangle.rs"
 
 [[bin]]
 name = "enums"
-path = "src/bin/enums.rs"
+path = "src/bin/collections/enums.rs"
 
 [[bin]]
 name = "if_let"
-path = "src/bin/if_let.rs"
+path = "src/bin/fundamentals/if_let.rs"
 
 [[bin]]
 name = "vectors"
-path = "src/bin/vectors.rs"
+path = "src/bin/collections/vectors.rs"
 
 [[bin]]
 name = "string"
-path = "src/bin/string.rs"
+path = "src/bin/strings/string.rs"
 
 [[bin]]
 name = "hashmap"
-path = "src/bin/hashmap.rs"
+path = "src/bin/collections/hashmap.rs"
 
 [[bin]]
 name = "error_handling"
-path = "src/bin/error_handling.rs"
+path = "src/bin/fundamentals/error_handling.rs"
 
 [[bin]]
 name = "generics"
-path = "src/bin/generics.rs"
+path = "src/bin/fundamentals/generics.rs"
+
+[[bin]]
+name = "trait"
+path = "src/bin/oops/trait.rs"
+
+[[bin]]
+name = "lifetime"
+path = "src/bin/ownership/lifetime.rs"
+
+[[bin]]
+name = "array"
+path = "src/bin/collections/arrays.rs"
+
+[[bin]]
+name = "hashset"
+path = "src/bin/collections/hashset.rs"
 
