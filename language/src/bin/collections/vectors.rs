@@ -126,6 +126,11 @@ fn main(){
     }
 
 
+    for (index,value) in vector2.iter().enumerate(){
+        println!("index:{index} => value:{:?}",value);
+    }
+
+
 
 
 }

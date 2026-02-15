@@ -4,7 +4,12 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+futures = "0.3.31"
 rand = "0.8.5"
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "1.0.149"
+smol = "2.0.2"
+tokio = { version = "1.49.0", features = ["macros", "rt"] }
 
 [[bin]]
 name = "hello_world"
@@ -97,4 +102,24 @@ path = "src/bin/collections/arrays.rs"
 [[bin]]
 name = "hashset"
 path = "src/bin/collections/hashset.rs"
+
+[[bin]]
+name = "closures"
+path = "src/bin/fundamentals/closures.rs"
+
+[[bin]]
+name = "iterators"
+path = "src/bin/collections/iterators.rs"
+
+[[bin]]
+name = "async_and_await"
+path = "src/bin/backend_essentials/async_and_await.rs"
+
+[[bin]]
+name = "tokio"
+path = "src/bin/backend_essentials/tokio.rs"
+
+[[bin]]
+name = "serde"
+path = "src/bin/backend_essentials/serde.rs"
 
