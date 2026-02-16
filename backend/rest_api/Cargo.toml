@@ -1,0 +1,25 @@
+[package]
+name = "rest_api"
+version = "0.1.0"
+edition = "2024"
+
+[workspace]
+members = [".", "entity", "migration"]
+
+[workspace.dependencies]
+sea-orm = { version = "1.1.19", features = ["sqlx-postgres", "runtime-tokio-rustls", "macros"] }
+serde = { version = "1.0.228", features = ["derive"] }
+tokio = { version = "1.49.0", features = ["full"] }
+
+[dependencies]
+entity = { path = "entity" }
+migration = { path = "migration" }
+
+axum = { version = "0.8.8", features = ["http2", "macros"] }
+sea-orm.workspace = true
+serde.workspace = true
+tokio.workspace = true
+
+chrono = "0.4.43"
+uuid = { version = "1.21.0", features = ["v4"] }
+dotenvy = "0.15"
