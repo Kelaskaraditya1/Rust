@@ -63,43 +63,14 @@ serde.workspace = true
 
 than modify the Cargo.toml file of the root dir accordingly the Cargo.toml of entity.
 
-than import , use entity::<entity>;
-
-Crud Operations:
-
-1) Insert , for taking Response body as input: Json(payload):Json<Type> and the return type should be impl IntoResponse
-
-steps for insert operation:
-    1) use the ActiveModel from the entity that imported from the entity dir and Set() to set the value 
-
-    let user_model = user::ActiveModel{
-    user_id:Set(uuid::Uuid::new_v4()),
-    name:Set(user_request.name),
-    created_at:Set(chrono::Utc::now(),naive_utc()
-    }
-
-    2) than use user-model to call the insert method and pass the reference of Database as a parameter.
-
-    let user_response = user_model.insert(&db).await.unwrap(); this returns the model which is inserted in the database.
-
-    3) return the response with the status code
-
-    (StatusCode::CREATED,Json(user_response))
-
-
-
-
-
-
 
 
  */
 
-// use std::env;
-// use dotenvy::dotenv;   
-use axum::{Json, Router, routing::{get, post}};
-// use sea_orm::{Database, DatabaseConnection};
+use std::env;
+use axum::{Json, Router, routing::{delete, get, post, put}};
 use serde::{Deserialize, Serialize};
+use crate::users::service::signup;
 
 pub mod users;
 
@@ -107,10 +78,20 @@ pub mod users;
 async fn main(){
 
     let app = Router::new()
-        .route("/health",get(health))
-        .route("/users/create",post(users::create_user));
+        .route("/api/v1/health",get(health))
+        .route("/api/v1/users/signup",post(signup))
+        .route("/api/v1/users/login",post(users::service::login))
+        .route("/api/v1/users/update/{user_id}",put(users::service::update_user))
+        .route("/api/v1/users/delete/{user_id}",delete(users::service::delete_user))
+        .route("/api/v1/users", get(users::service::get_all_users));
+    
 
-    let address = "0.0.0.0:8000";
+    dotenvy::dotenv().ok();
+
+    let ip_address = env::var("IP_ADDRESS").expect("failed to fetch Ip Address");
+    let port = env::var("PORT").expect("failed to fetch port number");
+    let address = ip_address + &port;
+
     let listner = tokio::net::TcpListener::bind(address)
         .await
         .unwrap();
@@ -124,15 +105,6 @@ pub struct Health{
     status:String,
     health:String
 }
-
-// async fn get_database_connection()->DatabaseConnection{
-
-//     dotenv().ok();
-//     let database_url = env::var("DATABASE_URL").expect("Database url not found");
-//     let database_connection:DatabaseConnection = Database::connect(database_url).await.unwrap();
-//     database_connection
-
-// }
 
 async fn health()->Json<Health>{
     Json(
