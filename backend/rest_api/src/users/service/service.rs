@@ -200,12 +200,11 @@ steps for insert operation:
 
 use axum::{Extension, Json, extract::Path, http::StatusCode, response::IntoResponse};
 use entity::users::{self, Column, Model};
-use migration::Mode;
 use sea_orm::{ActiveModelTrait, ActiveValue::Set, ColumnTrait, Condition, DatabaseConnection, EntityTrait, QueryFilter};
 use serde::{Deserialize, Serialize};
 use entity::prelude::Users;
 
-use crate::users::{exception::api_error::ApiError, models::models::{LoginRequest, UpdateUserRequest, UserCreateRequest}};
+use crate::users::{exception::api_error::ApiError, models::models::{LoginRequest, LoginResponse, UpdateUserRequest, UserCreateRequest}, service::jwt_service::encode_jwt};
 
 
 #[derive(Debug,Serialize,Deserialize)]
@@ -313,11 +312,7 @@ pub async fn signup(
 pub async fn login(
     Extension(db):Extension<DatabaseConnection>,
     Json(login_request):Json<LoginRequest>
-) -> Result<Json<Model>,ApiError>{
-
-    // dotenv().ok();
-    // let database_url = env::var("DATABASE_URL").expect("Database url not found");
-    // let db = Database::connect(database_url).await.unwrap();
+) -> Result<Json<LoginResponse>,ApiError>{
 
     let user = Users::find()
         .filter(
@@ -331,27 +326,32 @@ pub async fn login(
         .unwrap();
 
 
-match user {
-    Some(user) => {
-        println!("User logged in successfully");
-        Ok(
-            Json(user)
-        )
+    match user {
+        Some(user) => {
+            println!("User logged in successfully");
+
+            let token = encode_jwt(user.email.clone())
+                .map_err(|_| ApiError {
+                    message: "Failed to generate token".to_string(),
+                    status_code: StatusCode::INTERNAL_SERVER_ERROR,
+                })?;
+
+            Ok(Json(LoginResponse {
+                user,
+                token,
+            }))
+        }
+        None => {
+            println!("Invalid username or password");
+
+            return Err(
+                ApiError{
+                    message:"Invalid username or password".to_string(),
+                    status_code:StatusCode::BAD_REQUEST
+                }
+            );
+        }
     }
-    None => {
-        println!("Invalid username or password");
-
-        return Err(
-            ApiError{
-                message:"Invalid username or password".to_string(),
-                status_code:StatusCode::BAD_REQUEST
-            }
-        );
-
-    }
-}
-
-
 }
 
 

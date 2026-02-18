@@ -36,4 +36,10 @@ pub struct UpdateUserRequest{
     pub contact:String,
     pub username:String
 
-} 
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct LoginResponse {
+    pub user: entity::users::Model,
+    pub token: String,
+}
