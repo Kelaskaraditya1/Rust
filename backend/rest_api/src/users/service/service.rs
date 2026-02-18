@@ -199,12 +199,13 @@ steps for insert operation:
 
 
 use axum::{Extension, Json, extract::Path, http::StatusCode, response::IntoResponse};
-use entity::users::{self, Column};
+use entity::users::{self, Column, Model};
+use migration::Mode;
 use sea_orm::{ActiveModelTrait, ActiveValue::Set, ColumnTrait, Condition, DatabaseConnection, EntityTrait, QueryFilter};
 use serde::{Deserialize, Serialize};
 use entity::prelude::Users;
 
-use crate::users::models::models::{LoginRequest, UpdateUserRequest, UserCreateRequest};
+use crate::users::{exception::api_error::ApiError, models::models::{LoginRequest, UpdateUserRequest, UserCreateRequest}};
 
 
 #[derive(Debug,Serialize,Deserialize)]
@@ -216,7 +217,7 @@ pub struct ApiResponse{
 pub async fn signup(
     Extension(db):Extension<DatabaseConnection>,
     Json(user_request):Json<UserCreateRequest>
-)->impl IntoResponse{
+)->Result<Json<Model>,ApiError>{
 
     // dotenv().ok();
     // let database_url = env::var("DATABASE_URL").expect("Database url not found");
@@ -226,55 +227,65 @@ pub async fn signup(
         .filter(Column::Username.eq(&user_request.username))
         .one(&db)
         .await
-        .unwrap();
+        .map_err(
+            |error| ApiError{
+                message:error.to_string(),
+                status_code:StatusCode::BAD_REQUEST
+            }
+        )?;
 
     if user_with_username.is_some(){
         println!("Username already exists");
-        return (
-            StatusCode::BAD_REQUEST,
-            Json(
-                ApiResponse{
-                    message:"Username already exists".to_string()
-                }
-            )
-        ).into_response();
+        return Err(
+            ApiError { 
+                message: "Username already taken".to_string(),
+                status_code: StatusCode::BAD_REQUEST 
+            }
+        );
     }
 
     let user_with_email = Users::find()
         .filter(Column::Email.eq(&user_request.email))
         .one(&db)
         .await
-        .unwrap();
+        .map_err(
+            |error| ApiError{
+                message:error.to_string(),
+                status_code:StatusCode::BAD_REQUEST
+            }
+        )?;
 
     if user_with_email.is_some(){
         println!("Email already exists");
-        return (
-            StatusCode::BAD_REQUEST,
-            Json(
-                ApiResponse{
-                    message:"Email already exists".to_string()
-                }
-            )
-        ).into_response();
+
+        return Err(
+            ApiError{
+                message:"Email already taken".to_string(),
+                status_code:StatusCode::BAD_REQUEST
+            }
+        );
     }
 
     let user_with_contact = Users::find()
         .filter(Column::Contact.eq(&user_request.contact))
         .one(&db)
         .await
-        .unwrap();
+        .map_err(
+            |error| ApiError{
+                message:error.to_string(),
+                status_code:StatusCode::BAD_REQUEST
+            }
+        )?;
 
     if user_with_contact.is_some(){
         println!("Contact already exists");
 
-        return (
-            StatusCode::BAD_REQUEST,
-            Json(
-                ApiResponse{
-                    message:"Contact already exists".to_string()
-                }
-            )
-        ).into_response()
+        return Err(
+            ApiError {
+                message:"Contact already taken".to_string(),
+                status_code:StatusCode::BAD_REQUEST
+            }
+        );
 
 
     }
@@ -293,7 +304,7 @@ pub async fn signup(
     println!("User created successfully: {:?}",user_response);
 
 
-    (StatusCode::CREATED,Json(user_response)).into_response()
+    Ok(Json(user_response))
 
 
 }
@@ -302,7 +313,7 @@ pub async fn signup(
 pub async fn login(
     Extension(db):Extension<DatabaseConnection>,
     Json(login_request):Json<LoginRequest>
-) -> impl IntoResponse{
+) -> Result<Json<Model>,ApiError>{
 
     // dotenv().ok();
     // let database_url = env::var("DATABASE_URL").expect("Database url not found");
@@ -323,18 +334,19 @@ pub async fn login(
 match user {
     Some(user) => {
         println!("User logged in successfully");
-        (StatusCode::OK, Json(user)).into_response()
+        Ok(
+            Json(user)
+        )
     }
     None => {
         println!("Invalid username or password");
-        (
-            StatusCode::UNAUTHORIZED,
-            Json(
-                ApiResponse{
-                    message:"Invalid username or password".to_string()
-                }
-            )
-        ).into_response()
+
+        return Err(
+            ApiError{
+                message:"Invalid username or password".to_string(),
+                status_code:StatusCode::BAD_REQUEST
+            }
+        );
 
     }
 }

@@ -101,17 +101,11 @@ for defining constants:
     ...
     }
  
-
-
-
-
  */
 
-use std::env;
 use axum::{Extension, Json, Router, routing::get};
 use sea_orm::Database;
 use serde::{Deserialize, Serialize};
-
 use crate::users::{keys, routes::routes::router};
 
 pub mod users;
@@ -128,13 +122,9 @@ async fn main(){
         .merge(router())
         .layer(Extension(database_connection)); // Creting a dependency injection of Database connection
 
+    let ip_address = (*keys::keys::ADDRESS).clone();
 
-
-    let ip_address = env::var("IP_ADDRESS").expect("failed to fetch Ip Address");
-    let port = env::var("PORT").expect("failed to fetch port number");
-    let address = ip_address + &port;
-
-    let listner = tokio::net::TcpListener::bind(address)
+    let listner = tokio::net::TcpListener::bind(ip_address)
         .await
         .unwrap();
 
