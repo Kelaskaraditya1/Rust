@@ -1,4 +1,7 @@
 /*
+
+<----------------------------------------------------------------------Dependencies to be Installed----------------------------------------------------------------------------------------------------------------------------------------------->
+
 1) Dependencies installed:
 
  1) cargo add axum --features=http2,macros,ws
@@ -6,7 +9,10 @@
  3) cargo add serde --features=derive
  4) cargo add uuid --features=v4
  5) cargo add chrono // for date_time.
-
+ 6) cargo add tower-http 
+ 7) cargo add tower-http -features=cors
+ 8) 
+<-------------------------------------------------------------------------Sea Orm Cli commands---------------------------------------------------------------------------------------------------------------------------------------------->
  Sea-Orm-cli
 
  sea-orm-cli is used for creating tables and migration 
@@ -15,6 +21,7 @@
  2) run, sea-orm-cli migrate init // creates migration folder in which there is file where we have to update the schema of the table.
  3) run, sea-orm-cli migrate fresh // runs the migration and creates table in database
 
+<-------------------------------------------------------------------------Methods for defining schema in migration file---------------------------------------------------------------------------------------------------------------------------------------------->
 
 common methods for updating the schema of the table in the migration file:
 
@@ -63,30 +70,65 @@ serde.workspace = true
 
 than modify the Cargo.toml file of the root dir accordingly the Cargo.toml of entity.
 
+<-------------------------------------------------------------------------For creating Dependency Injection---------------------------------------------------------------------------------------------------------------------------------------------->
+
+for defining constants: 
+    1) install lazy_static : cargo add lazy_static
+    2) create a file keys.rs
+
+    lazy_static!{
+    pub static ref DATABASE_URL:String = set_database_url();
+}
+
+    now create a database connection using Database url 
+
+        dotenvy::dotenv().ok(); // loads the .env file
+    let database_url = (*keys::keys::DATABASE_URL).clone();
+    let database_connection = Database::connect(database_url).await.expect("Failed to connect to Database");
+
+    let app = Router::new()
+        .route("/api/v1/health",get(health))
+        .merge(router())
+        .layer(Extension(database_connection));
+
+
+    now for using wher ever it is required:
+
+    pub async fn signup(
+    Extension(db):Extension<DatabaseConnection>, // taking as a input
+    )->impl IntoResponse{
+
+    ...
+    }
+ 
+
+
 
 
  */
 
 use std::env;
-use axum::{Json, Router, routing::{delete, get, post, put}};
+use axum::{Extension, Json, Router, routing::get};
+use sea_orm::Database;
 use serde::{Deserialize, Serialize};
-use crate::users::service::signup;
+
+use crate::users::{keys, routes::routes::router};
 
 pub mod users;
 
 #[tokio::main]
 async fn main(){
 
+    dotenvy::dotenv().ok(); // loads the .env file
+    let database_url = (*keys::keys::DATABASE_URL).clone();
+    let database_connection = Database::connect(database_url).await.expect("Failed to connect to Database");
+
     let app = Router::new()
         .route("/api/v1/health",get(health))
-        .route("/api/v1/users/signup",post(signup))
-        .route("/api/v1/users/login",post(users::service::login))
-        .route("/api/v1/users/update/{user_id}",put(users::service::update_user))
-        .route("/api/v1/users/delete/{user_id}",delete(users::service::delete_user))
-        .route("/api/v1/users", get(users::service::get_all_users));
-    
+        .merge(router())
+        .layer(Extension(database_connection)); // Creting a dependency injection of Database connection
 
-    dotenvy::dotenv().ok();
+
 
     let ip_address = env::var("IP_ADDRESS").expect("failed to fetch Ip Address");
     let port = env::var("PORT").expect("failed to fetch port number");

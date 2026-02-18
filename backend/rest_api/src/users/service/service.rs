@@ -4,6 +4,8 @@ than import , use entity::<entity>;
 
 Crud Operations:
 
+<-------------------------------------------------------------------------Insert Operation---------------------------------------------------------------------------------------------------------------------------------------------->
+
 1) Insert , for taking Response body as input: Json(payload):Json<Type> and the return type should be impl IntoResponse
 
 steps for insert operation:
@@ -22,6 +24,9 @@ steps for insert operation:
     3) return the response with the status code
 
     (StatusCode::CREATED,Json(user_response))
+
+<-------------------------------------------------------------------------Read Operation---------------------------------------------------------------------------------------------------------------------------------------------->
+
 
 2) Finding methods using various conditions 
 
@@ -100,6 +105,9 @@ steps for insert operation:
     )
     .into_response();
 
+<-------------------------------------------------------------------------Update Operation---------------------------------------------------------------------------------------------------------------------------------------------->
+
+
 3) Update operation
 
     1) first find the record by id and than convert it into ActiveModel and than update the value using Set() and than call the update method by passing the reference of database.
@@ -131,6 +139,8 @@ steps for insert operation:
 
     let updated_user = user.update(&db).await.unwrap();
 
+
+<-------------------------------------------------------------------------Delete Operation---------------------------------------------------------------------------------------------------------------------------------------------->
 
 4) Delete operation
 
@@ -173,6 +183,9 @@ steps for insert operation:
         ).into_response();
     }
 
+<-------------------------------------------------------------------------Find All Operation---------------------------------------------------------------------------------------------------------------------------------------------->
+
+
 5) finding all records
 
     Users::find()
@@ -185,14 +198,13 @@ steps for insert operation:
 */
 
 
-use std::{env};
-use axum::{Json,extract::Path,http::StatusCode, response::IntoResponse};
-use dotenvy::dotenv;
+use axum::{Extension, Json, extract::Path, http::StatusCode, response::IntoResponse};
 use entity::users::{self, Column};
-use sea_orm::{ActiveModelTrait, ActiveValue::Set, ColumnTrait, Condition, Database, EntityTrait, QueryFilter};
+use sea_orm::{ActiveModelTrait, ActiveValue::Set, ColumnTrait, Condition, DatabaseConnection, EntityTrait, QueryFilter};
 use serde::{Deserialize, Serialize};
-use crate::users::models::{LoginRequest, UpdateUserRequest, UserCreateRequest};
 use entity::prelude::Users;
+
+use crate::users::models::models::{LoginRequest, UpdateUserRequest, UserCreateRequest};
 
 
 #[derive(Debug,Serialize,Deserialize)]
@@ -200,11 +212,15 @@ pub struct ApiResponse{
     pub message:String
 }
 
-pub async fn signup(Json(user_request):Json<UserCreateRequest>)->impl IntoResponse{
+#[axum::debug_handler]
+pub async fn signup(
+    Extension(db):Extension<DatabaseConnection>,
+    Json(user_request):Json<UserCreateRequest>
+)->impl IntoResponse{
 
-    dotenv().ok();
-    let database_url = env::var("DATABASE_URL").expect("Database url not found");
-    let db = Database::connect(database_url).await.unwrap();
+    // dotenv().ok();
+    // let database_url = env::var("DATABASE_URL").expect("Database url not found");
+    // let db = Database::connect(database_url).await.unwrap();
 
     let user_with_username = Users::find()
         .filter(Column::Username.eq(&user_request.username))
@@ -276,18 +292,21 @@ pub async fn signup(Json(user_request):Json<UserCreateRequest>)->impl IntoRespon
     let user_response = user_model.insert(&db).await.unwrap();
     println!("User created successfully: {:?}",user_response);
 
-    db.close().await.unwrap();
 
     (StatusCode::CREATED,Json(user_response)).into_response()
 
 
 }
 
-pub async fn login(Json(login_request):Json<LoginRequest>) -> impl IntoResponse{
+#[axum::debug_handler]
+pub async fn login(
+    Extension(db):Extension<DatabaseConnection>,
+    Json(login_request):Json<LoginRequest>
+) -> impl IntoResponse{
 
-    dotenv().ok();
-    let database_url = env::var("DATABASE_URL").expect("Database url not found");
-    let db = Database::connect(database_url).await.unwrap();
+    // dotenv().ok();
+    // let database_url = env::var("DATABASE_URL").expect("Database url not found");
+    // let db = Database::connect(database_url).await.unwrap();
 
     let user = Users::find()
         .filter(
@@ -300,7 +319,6 @@ pub async fn login(Json(login_request):Json<LoginRequest>) -> impl IntoResponse{
         .await
         .unwrap();
 
-        db.close().await.unwrap();
 
 match user {
     Some(user) => {
@@ -328,12 +346,13 @@ match user {
 #[axum::debug_handler]
 pub async fn update_user(
     Path(user_id):Path<uuid::Uuid>,
+    Extension(db):Extension<DatabaseConnection>,
     Json(update_user_request):Json<UpdateUserRequest>
 )->impl IntoResponse{
 
-    dotenv().ok();
-    let database_url = env::var("DATABASE_URL").expect("Failed to load database url");
-    let db = Database::connect(database_url).await.unwrap();
+    // dotenv().ok();
+    // let database_url = env::var("DATABASE_URL").expect("Failed to load database url");
+    // let db = Database::connect(database_url).await.unwrap();
 
     let user_with_id = Users::find_by_id(user_id)
         .one(&db)
@@ -363,7 +382,6 @@ pub async fn update_user(
     let updated_user = user.update(&db).await.unwrap();
     println!("User updated successfully");
 
-    db.close().await.unwrap();
 
     (
         StatusCode::OK,
@@ -372,11 +390,15 @@ pub async fn update_user(
 
 }
 
-pub async fn delete_user(Path(user_id):Path<uuid::Uuid>)->impl IntoResponse{
+pub async fn delete_user(
+    Path(user_id):Path<uuid::Uuid>,
+    Extension(db):Extension<DatabaseConnection>
 
-    dotenv().ok();
-    let database_url = env::var("DATABASE_URL").expect("Database url not found");
-    let db = Database::connect(database_url).await.unwrap();
+)->impl IntoResponse{
+
+    // dotenv().ok();
+    // let database_url = env::var("DATABASE_URL").expect("Database url not found");
+    // let db = Database::connect(database_url).await.unwrap();
 
     let user_with_id = Users::find_by_id(user_id)
         .one(&db)
@@ -391,7 +413,6 @@ pub async fn delete_user(Path(user_id):Path<uuid::Uuid>)->impl IntoResponse{
             .unwrap();
 
         println!("User deleted successfully");
-        db.close().await.unwrap();
         return (
             StatusCode::OK,
             Json(
@@ -403,7 +424,6 @@ pub async fn delete_user(Path(user_id):Path<uuid::Uuid>)->impl IntoResponse{
 
     }else{
         println!("User not found");
-        db.close().await.unwrap();
 
         return (
             StatusCode::NOT_FOUND,
@@ -422,18 +442,19 @@ pub async fn delete_user(Path(user_id):Path<uuid::Uuid>)->impl IntoResponse{
 }
 
 
-pub async fn get_all_users()->impl IntoResponse{
+pub async fn get_all_users(
+        Extension(db):Extension<DatabaseConnection>
+)->impl IntoResponse{
 
-    dotenv().ok();
-    let database_url = env::var("DATABASE_URL").expect("Database url not found");
-    let db = Database::connect(database_url).await.unwrap();
+    // dotenv().ok();
+    // let database_url = env::var("DATABASE_URL").expect("Database url not found");
+    // let db = Database::connect(database_url).await.unwrap();
 
     let users = Users::find()
         .all(&db)
         .await
         .unwrap();
 
-    db.close().await.unwrap();
 
     (
         StatusCode::OK,

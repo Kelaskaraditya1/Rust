@@ -23,3 +23,5 @@ tokio.workspace = true
 chrono = "0.4.43"
 uuid = { version = "1.21.0", features = ["v4"] }
 dotenvy = "0.15"
+tower-http = { version = "0.6.8", features = ["cors"] }
+lazy_static = "1.5.0"
