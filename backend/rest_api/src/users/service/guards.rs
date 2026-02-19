@@ -28,6 +28,7 @@ pub async fn guard(
     // Decode and validate the JWT
     let token_data = decode_jwt(token.to_string())?;
 
+
     // Store the user's email (from `sub` claim) in request extensions
     // so downstream handlers can access the authenticated user
     request.extensions_mut().insert(token_data.claims);

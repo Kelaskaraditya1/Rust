@@ -11,7 +11,8 @@
  5) cargo add chrono // for date_time.
  6) cargo add tower-http 
  7) cargo add tower-http -features=cors
- 8) 
+ 8) cargo add sea-orm-cli
+ 9) 
 <-------------------------------------------------------------------------Sea Orm Cli commands---------------------------------------------------------------------------------------------------------------------------------------------->
  Sea-Orm-cli
 
