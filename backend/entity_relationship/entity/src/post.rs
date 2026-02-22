@@ -8,35 +8,33 @@ pub struct Entity;
 
 impl EntityName for Entity {
     fn table_name(&self) -> &str {
-        "users"
+        "post"
     }
 }
 
 #[derive(Clone, Debug, PartialEq, DeriveModel, DeriveActiveModel, Eq, Serialize, Deserialize)]
 pub struct Model {
-    pub user_id: Uuid,
-    pub name: String,
-    pub contact: String,
-    pub email: String,
-    pub username: String,
-    pub password: String,
+    pub post_id: Uuid,
+    pub title: String,
+    pub content: String,
+    pub media_url: String,
     pub created_at: DateTime,
+    pub user_id: Uuid,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveColumn)]
 pub enum Column {
-    UserId,
-    Name,
-    Contact,
-    Email,
-    Username,
-    Password,
+    PostId,
+    Title,
+    Content,
+    MediaUrl,
     CreatedAt,
+    UserId,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DerivePrimaryKey)]
 pub enum PrimaryKey {
-    UserId,
+    PostId,
 }
 
 impl PrimaryKeyTrait for PrimaryKey {
@@ -48,20 +46,19 @@ impl PrimaryKeyTrait for PrimaryKey {
 
 #[derive(Copy, Clone, Debug, EnumIter)]
 pub enum Relation {
-    Post,
+    Users,
 }
 
 impl ColumnTrait for Column {
     type EntityName = Entity;
     fn def(&self) -> ColumnDef {
         match self {
-            Self::UserId => ColumnType::Uuid.def(),
-            Self::Name => ColumnType::String(StringLen::None).def(),
-            Self::Contact => ColumnType::String(StringLen::None).def().unique(),
-            Self::Email => ColumnType::String(StringLen::None).def().unique(),
-            Self::Username => ColumnType::String(StringLen::None).def().unique(),
-            Self::Password => ColumnType::String(StringLen::None).def(),
+            Self::PostId => ColumnType::Uuid.def(),
+            Self::Title => ColumnType::String(StringLen::None).def(),
+            Self::Content => ColumnType::String(StringLen::None).def(),
+            Self::MediaUrl => ColumnType::String(StringLen::None).def(),
             Self::CreatedAt => ColumnType::DateTime.def(),
+            Self::UserId => ColumnType::Uuid.def(),
         }
     }
 }
@@ -69,14 +66,17 @@ impl ColumnTrait for Column {
 impl RelationTrait for Relation {
     fn def(&self) -> RelationDef {
         match self {
-            Self::Post => Entity::has_many(super::post::Entity).into(),
+            Self::Users => Entity::belongs_to(super::users::Entity)
+                .from(Column::UserId)
+                .to(super::users::Column::UserId)
+                .into(),
         }
     }
 }
 
-impl Related<super::post::Entity> for Entity {
+impl Related<super::users::Entity> for Entity {
     fn to() -> RelationDef {
-        Relation::Post.def()
+        Relation::Users.def()
     }
 }
 

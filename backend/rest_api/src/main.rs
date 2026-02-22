@@ -48,6 +48,15 @@ common methods for updating the schema of the table in the migration file:
     7) ColumnDef::new(User::Uuid).string().unique_key().not_null()
     8) ColumnDef::new(User::CreatedAt).timestamp().default(Expr::current_timestamp()).not_null()    // for creating a column of type timestamp which is not null and has default value as current timestamp
 
+    for creating forign key relation
+
+    .foreign_key(
+        ForeignKey::create()
+        .name("fk-post-user")
+        .from(Post::Table, Post::UserId) // from table and column
+        .to(Users::Table,Users::UserId)  // to table and cloumn     
+    )
+
 after creating proper tables in database , next step is to crteate entity dir
 
 for that first run the below command

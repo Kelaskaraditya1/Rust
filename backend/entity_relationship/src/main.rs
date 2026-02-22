@@ -8,6 +8,8 @@ use crate::users::routes;
 pub mod keys;
 pub mod users;
 pub mod exception;
+pub mod posts;
+pub mod comments;
 
 #[tokio::main]
 async fn main(){
@@ -32,6 +34,7 @@ async fn main(){
             get(health)
         )
         .merge(routes::user_routes::user_router())
+        .merge(posts::routes::posts_route::post_router())
         .layer(Extension(database_connection))
         .layer(cors_policy);
 
