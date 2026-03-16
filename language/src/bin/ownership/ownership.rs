@@ -8,7 +8,7 @@ so basically the variable belongs in a scope and when the scope is over than rus
 
 /*  Ownership issue:
     let s1 = String::from("Aditya");
-    let s2:String = s1;
+    let s2:String = s1; // the ownership of s1 is being transferred to s2, so now s2 is the new owner of the data and s1 becomes irrelevant 
 
     println!("{s1}");
 
@@ -39,6 +39,11 @@ fn main(){
     let s2 = give_and_take_ownership(s1);
 
     length_of_string(s2);
+
+    // let string1 = String::from("Aditya Kelaskar");
+    // let string2 = &string1;
+
+    // println!("My name is {string1}");
 
 
 

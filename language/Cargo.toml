@@ -123,3 +123,27 @@ path = "src/bin/backend_essentials/tokio.rs"
 name = "serde"
 path = "src/bin/backend_essentials/serde.rs"
 
+[[bin]]
+name = "thread1"
+path = "src/bin/multithreading/thread1.rs"
+
+[[bin]]
+name = "ownership_in_threading"
+path = "src/bin/multithreading/ownership_in_threading.rs"
+
+[[bin]]
+name = "atomic_reference_count"
+path = "src/bin/multithreading/atomic_reference_count.rs"
+
+[[bin]]
+name = "mutual_exclusion"
+path = "src/bin/multithreading/mutual_exclusion.rs"
+
+[[bin]]
+name = "message_passing"
+path = "src/bin/multithreading/message_passing.rs"
+
+[[bin]]
+name = "practise"
+path = "src/bin/practise_questions.rs"
+

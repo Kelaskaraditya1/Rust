@@ -18,12 +18,16 @@ fn main(){
 
     let name = String::from("Aditya");
 
-    length_of_string(&name);
+    // without_reference(name); // without reference gives borrow error
+    // length_of_string(&name); // with reference, works properly
 
-    let string2 = String::from("Kelaskar");
     println!("My name is {name}");
 
 }
+
+// fn without_reference(string:String){
+//     println!("My name is {string}");
+// }
 
 fn length_of_string(string:& String)->usize{
     // string.push_str(string);

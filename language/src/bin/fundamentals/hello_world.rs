@@ -16,7 +16,7 @@ Macro is a peice of code written in the library and has a name , and whereever i
  */
 
 /*                                                                                          CARGO
-1) cargo is a package manager , for building project and installing packages amd dependencies.
+1) cargo is a package manager/build tool , for building project and installing packages amd dependencies.
 
 Cargo commands:
 

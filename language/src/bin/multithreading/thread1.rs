@@ -2,7 +2,7 @@
 
 for creating a new thread: 
 
-1) impor: use std::thread;
+1) import: use std::thread;
 2) use the spawn function to create a new thread, it expects single arguement which is closure which tells what task to perform.
 spawn method is non blocking means the main thread will create a new thread and contnue the further execution without waiting for the new thread to complete its work.
 3) a new thread is created and it contains a JoinHandle which contains information of the thread and it has 2 methods is_finished() and join().
@@ -54,8 +54,7 @@ fn main(){
 
     println!("Result of execution of thread1 is:{}",handler.join().unwrap());
 
-
-
+    println!("Main thread finished execution");
 
 }
 
