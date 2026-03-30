@@ -4,36 +4,56 @@ but in if let statement we just have to cover the required cases not all and it 
 
 
 */
-use std::io::{self, Read};
+use std::io::{self};
 
 fn main(){
 
-    let mut raw_num = String::new();
-    let mut raw_status = String::new();
+    // let mut raw_num = String::new();
+    // let mut raw_status = String::new();
 
-            println!("Enter the first number");
+    //         println!("Enter the first number");
             
-    io::stdin().read_line(&mut raw_num)
+    // io::stdin().read_line(&mut raw_num)
+    //     .expect("Enter proper number");
+
+    // io::stdin().read_line(&mut raw_status)
+    //     .expect("Enter proper status");
+
+    // let number:i32 = raw_num.trim()
+    //     .parse()
+    //     .expect("unable to convert to proper number");
+
+    // let status:bool = raw_status.trim()
+    //     .parse()
+    //     .expect("unable to convert to proper status");
+
+    let stdin = io::stdin();
+
+    let mut raw_num = String::new();
+    stdin.read_line(&mut raw_num)
         .expect("Enter proper number");
 
-    io::stdin().read_line(&mut raw_status)
-        .expect("Enter proper status");
-
-    let number:i32 = raw_num.trim()
+    let num:i32 = raw_num.trim()
         .parse()
-        .expect("unable to convert to proper number");
+        .expect("Numbe should be of inteegr format");
 
-    let status:bool = raw_status.trim()
-        .parse()
-        .expect("unable to convert to proper status");
-
-    println!("The sum of both the numbers is : {}", get_sum(number, status).unwrap());
-}
-
-fn get_sum(num1:i32, status:bool)->Option<i32>{
-    if status{
-        Some(num1+50)
+    if let Some(sum) = get_sum(num){
+        println!("The sum is {}",sum);
     }else{
-        Some(num1)
+        println!("You entered zero, enter a number greater than 0");
     }
+        
+
+
 }
+
+fn get_sum(num:i32)->Option<i32>{
+
+    if num==0{
+        None
+    }else{
+        Some(num+10)
+    }
+
+}
+

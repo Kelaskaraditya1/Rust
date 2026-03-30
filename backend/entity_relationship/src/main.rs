@@ -14,19 +14,16 @@ pub mod comments;
 #[tokio::main]
 async fn main(){
 
-    // Database connection
 
     let database_url = (*keys::keys::DATABASE_URL).clone();
     let database_connection = Database::connect(&database_url).await.unwrap();
 
-    // Cors Policy
 
     let cors_policy = CorsLayer::new()
         .allow_methods([Method::GET,Method::POST,Method::PUT,Method::PATCH,Method::DELETE,Method::OPTIONS])
         .allow_headers(Any)
         .allow_origin(Any);
 
-    // Base Router
 
     let router = Router::new()
         .route(

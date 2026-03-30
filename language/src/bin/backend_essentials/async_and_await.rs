@@ -8,7 +8,7 @@ the brief meaning of async and await is that , the task which is taking indefini
 
  1) the first run time that we used is smol:
  it gives a smol::block_on(feature:Feature) which returns result of type <T>.
-
+    
  for installing it use cargo add smol
  and for using it: smol::block_on(feature:Feature)
 

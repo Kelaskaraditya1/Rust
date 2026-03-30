@@ -1,0 +1,11 @@
+[workspace]
+members = [
+    "crud_csv",
+    "crud_csv/entity",
+    "crud_csv/migration"
+, "microservice/rust_backend"]
+
+[workspace.dependencies]
+sea-orm = { version = "1.1.19", features = ["sqlx-postgres", "runtime-tokio-rustls", "macros"] }
+serde = { version = "1.0.228", features = ["derive"] }
+tokio = { version = "1.50.0", features = ["full"] }

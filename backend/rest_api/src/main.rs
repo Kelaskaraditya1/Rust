@@ -6,13 +6,13 @@
 
  1) cargo add axum --features=http2,macros,ws
  2) cargo add tokio --features=full
- 3) cargo add serde --features=derive
+ 3) cargo add serde_json --features=derive
  4) cargo add uuid --features=v4
  5) cargo add chrono // for date_time.
  6) cargo add tower-http 
  7) cargo add tower-http -features=cors
  8) cargo add sea-orm-cli
- 9) 
+
 <-------------------------------------------------------------------------Sea Orm Cli commands---------------------------------------------------------------------------------------------------------------------------------------------->
  Sea-Orm-cli
 
