@@ -4,13 +4,11 @@ use axum::{Extension, Json, Router, routing::get};
 use sea_orm::Database;
 use serde::{Deserialize, Serialize};
 
-use crate::{controller::file_controller::{file_controller}, keys::keys::DATABASE_URL};
+use crate::{local::controller::file_controller::{file_controller}, keys::keys::DATABASE_URL};
 
 pub mod keys;
-pub mod service;
-pub mod controller;
 pub mod exception;
-pub mod dto;
+pub mod local;
 
 #[derive(Debug,Serialize,Deserialize)]
 pub struct Health{
