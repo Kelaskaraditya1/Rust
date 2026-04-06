@@ -27,3 +27,5 @@ uuid = { version = "1.22.0", features = ["v4"] }
 lazy_static = "1.5.0"
 tower-http = { version = "0.6.8", features = ["cors"] }
 chrono = "0.4.44"
+ssh2 = "0.9.5"
+anyhow = "1.0.102"

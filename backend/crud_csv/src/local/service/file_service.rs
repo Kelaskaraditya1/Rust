@@ -6,7 +6,7 @@ so when we take it as a parameter in a function we have to loop over the paramet
 for eg: multipart_file.next_field().await.map_err()?;
 
 2) For getting the file name from the field/file,
-field.file_name() 
+field.file_name()
 this returns Option<>
 
 3) For getting the data in bytes from filed of multipart:
@@ -65,11 +65,11 @@ this returns Option<>
 
             // compare mime with required format.
         }
-    } 
+    }
 
     10) for writing data on to a csv file we have to use the csv crate
 
-    first create a Csv Writer, write the data using serialize() than flush the writer. 
+    first create a Csv Writer, write the data using serialize() than flush the writer.
 
     let writer = Writer::from_path(path) gives Result<>
     writer.serialize(obj) returns Result<>
@@ -77,23 +77,28 @@ this returns Option<>
 
 */
 
-use axum::{Extension, Json, debug_handler, extract::{Multipart}, http::StatusCode};
+use crate::{
+    exception::global_exception_handler::ApiError, local::dto::request_dto::UserRequestDto,
+    local::service::user_service::insert_user,
+};
+use axum::{Extension, Json, debug_handler, extract::Multipart, http::StatusCode};
 use csv::{ReaderBuilder, Writer};
 use entity::users::Model;
 use sea_orm::{Database, DatabaseConnection, EntityTrait};
 use serde::Serialize;
-use crate::{local::dto::request_dto::UserRequestDto, exception::global_exception_handler::ApiError, local::service::user_service::insert_user};
-use std::{env, fs::{self, File}, io::Write};
+use std::{
+    env,
+    fs::{self, File},
+    io::Write,
+};
 
-
-#[derive(Debug,Serialize)]
-pub struct ApiResponse{
-    pub status_code:u16,
-    pub message:String
+#[derive(Debug, Serialize)]
+pub struct ApiResponse {
+    pub status_code: u16,
+    pub message: String,
 }
 
-pub async fn save_file(file_name:&str, data:&[u8])->Result<String,ApiError>{
-
+pub async fn save_file(file_name: &str, data: &[u8]) -> Result<String, ApiError> {
     let file_path = format!("uploads/{}", file_name);
 
     let mut file = match File::create(&file_path) {
@@ -101,7 +106,7 @@ pub async fn save_file(file_name:&str, data:&[u8])->Result<String,ApiError>{
         Err(e) => {
             return Err(ApiError {
                 status_code: StatusCode::INTERNAL_SERVER_ERROR,
-                message: format!("Error creating file '{}': {}", file_name, e)
+                message: format!("Error creating file '{}': {}", file_name, e),
             });
         }
     };
@@ -109,7 +114,7 @@ pub async fn save_file(file_name:&str, data:&[u8])->Result<String,ApiError>{
     if let Err(e) = file.write_all(data) {
         return Err(ApiError {
             status_code: StatusCode::INTERNAL_SERVER_ERROR,
-            message: format!("Failed to write data to '{}': {}", file_name, e)
+            message: format!("Failed to write data to '{}': {}", file_name, e),
         });
     }
 
@@ -117,27 +122,23 @@ pub async fn save_file(file_name:&str, data:&[u8])->Result<String,ApiError>{
 }
 
 async fn read_file(file_path: &str, db: &DatabaseConnection) -> Result<ApiResponse, ApiError> {
-
     let mut success_count: u32 = 0;
     let mut fail_count: u32 = 0;
 
     let file = match File::open(file_path) {
         Ok(f) => f,
         Err(e) => {
-            return Err(
-                ApiError { status_code: StatusCode::INTERNAL_SERVER_ERROR, message: format!("Unable to open file '{}': {}", file_path, e) }
-            );
+            return Err(ApiError {
+                status_code: StatusCode::INTERNAL_SERVER_ERROR,
+                message: format!("Unable to open file '{}': {}", file_path, e),
+            });
         }
     };
 
-    
-
-    let mut reader = ReaderBuilder::new()
-        .has_headers(true)
-        .from_reader(file);
+    let mut reader = ReaderBuilder::new().has_headers(true).from_reader(file);
 
     for (row_index, result) in reader.records().enumerate() {
-        let row_num = row_index + 2; 
+        let row_num = row_index + 2;
 
         let record = match result {
             Ok(r) => r,
@@ -167,15 +168,20 @@ async fn read_file(file_path: &str, db: &DatabaseConnection) -> Result<ApiRespon
             }
             Err(e) => {
                 fail_count += 1;
-                eprintln!("[Row {}] Failed to insert user '{}': {}", row_num, user_id, e.message);
+                eprintln!(
+                    "[Row {}] Failed to insert user '{}': {}",
+                    row_num, user_id, e.message
+                );
             }
         }
     }
 
     let summary = format!(
         "CSV processing complete: {} inserted, {} failed (total {} rows)",
-        success_count, fail_count, success_count + fail_count
-    ); 
+        success_count,
+        fail_count,
+        success_count + fail_count
+    );
     println!("{}", summary);
 
     if success_count == 0 && fail_count > 0 {
@@ -185,11 +191,11 @@ async fn read_file(file_path: &str, db: &DatabaseConnection) -> Result<ApiRespon
         });
     }
 
-    if  fail_count==0{
-        match fs::remove_file(file_path){
-            Ok(_)=> println!("File '{}' deleted successfully", file_path),
-            Err(error) =>{
-                println!("Failed to delete file: {}",error);
+    if fail_count == 0 {
+        match fs::remove_file(file_path) {
+            Ok(_) => println!("File '{}' deleted successfully", file_path),
+            Err(error) => {
+                println!("Failed to delete file: {}", error);
             }
         }
     }
@@ -200,167 +206,159 @@ async fn read_file(file_path: &str, db: &DatabaseConnection) -> Result<ApiRespon
     })
 }
 
-
-
 #[debug_handler]
 pub async fn upload_file(
     Extension(db): Extension<DatabaseConnection>,
     mut multipart_file: Multipart,
 ) -> Result<Json<ApiResponse>, ApiError> {
-    
     while let Some(field) = multipart_file.next_field().await.map_err(|e| ApiError {
         status_code: StatusCode::BAD_REQUEST,
         message: format!("Failed to read multipart field: {}", e),
     })? {
-
         let file_name = match field.file_name() {
             Some(name) => name.to_string(),
-            None => continue, 
+            None => continue,
         };
         println!("file name: {}", file_name);
 
         let data = match field.bytes().await {
-
             Ok(byte) => byte,
             Err(e) => {
-                return Err(
-                 ApiError{
-                    status_code:StatusCode::INTERNAL_SERVER_ERROR,
+                return Err(ApiError {
+                    status_code: StatusCode::INTERNAL_SERVER_ERROR,
                     message: format!("Failed to read file bytes: {}", e),
-                    }
-                );
+                });
             }
-            
         };
 
         let kind = infer::get(&data);
 
         let is_valid = match kind {
-
             Some(k) => {
                 let mime = k.mime_type();
 
-                    mime == "text/csv"
+                mime == "text/csv"
                     || mime == "application/vnd.ms-excel"
                     || mime == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-            },
-            None => {
-                file_name.ends_with(".csv")
             }
-            
+            None => file_name.ends_with(".csv"),
         };
 
-
-        if !is_valid{
-            return Err(
-                ApiError{
-                    status_code:StatusCode::BAD_REQUEST,
-                    message:"Only csv or excel files are allowed".to_string()
-                }
-            );
+        if !is_valid {
+            return Err(ApiError {
+                status_code: StatusCode::BAD_REQUEST,
+                message: "Only csv or excel files are allowed".to_string(),
+            });
         }
 
-        match save_file(&file_name, &data).await{
+        match save_file(&file_name, &data).await {
             Ok(path) => {
                 println!("{file_name} saved successfully");
                 let response = read_file(&path, &db).await?;
                 return Ok(Json(response));
-            },
+            }
             Err(e) => {
                 return Err(e);
             }
-            
         };
     }
 
-    Err(
-        ApiError { 
-            status_code: StatusCode::BAD_REQUEST,
-             message: "No file found in request".to_string() 
-            }
-    )
-
+    Err(ApiError {
+        status_code: StatusCode::BAD_REQUEST,
+        message: "No file found in request".to_string(),
+    })
 }
 
-async fn get_data(
-)->Result<Vec<Model>,ApiError>{
-
+async fn get_data() -> Result<Vec<Model>, ApiError> {
     dotenvy::dotenv().ok();
-    let db = Database::connect(env::var("DATABASE_URL").expect("Invalid key DATABASE_URL")).await.unwrap();
+    let db = Database::connect(env::var("DATABASE_URL").expect("Invalid key DATABASE_URL"))
+        .await
+        .unwrap();
 
     let data = entity::prelude::Users::find()
         .all(&db)
         .await
-        .map_err(
-            |error| ApiError{
-                status_code:StatusCode::INTERNAL_SERVER_ERROR,
-                message:error.to_string()
-            }
-        )?;
+        .map_err(|error| ApiError {
+            status_code: StatusCode::INTERNAL_SERVER_ERROR,
+            message: error.to_string(),
+        })?;
 
-        Ok(data)
+    Ok(data)
 }
 
 #[debug_handler]
-pub async fn write_file()->Result<Json<ApiResponse>,ApiError>{
+pub async fn write_file() -> Result<Json<ApiResponse>, ApiError> {
+    // let response = match get_data().await {
+    //     Ok(value) => value,
+    //     Err(_) => {
+    //         return Err(ApiError {
+    //             status_code: StatusCode::INTERNAL_SERVER_ERROR,
+    //             message: "failed to write data to new file".to_string(),
+    //         });
+    //     }
+    // };
 
-    let response = match get_data().await{
-        Ok(value)=>value,
-        Err(_)=>{
-            return Err(
-                ApiError{
-                    status_code:StatusCode::INTERNAL_SERVER_ERROR,
-                    message:"failed to write data to new file".to_string()
-                }
-            );
+    let response = get_data().await.map_err(
+        |_| ApiError{
+            status_code:StatusCode::INTERNAL_SERVER_ERROR,
+            message:format!("failed to get users:")
         }
-    };
+    )?;
 
     let path = "uploads/temp_write.csv".to_string();
 
     match File::create(&path) {
-        Ok(_)=>{
+        Ok(_) => {
+            let mut writer = Writer::from_path(path).map_err(|error| ApiError {
+                status_code: StatusCode::INTERNAL_SERVER_ERROR,
+                message: format!("error creating the writer {}", error),
+            })?;
 
-            let mut writer = Writer::from_path(path).map_err(
-                |error| ApiError{
-                    status_code:StatusCode::INTERNAL_SERVER_ERROR,
-                    message:format!("error creating the writer {}",error)
-                }
-            )?;
 
-            for user in response.iter(){
-
-                let _ = writer.serialize(user).map_err(
-                    |error| ApiError{
-                        status_code:StatusCode::INTERNAL_SERVER_ERROR,
-                        message:format!("error while writing record:{}",error)
-                    }
-                );
-
+            for user in response {
+                let _ = writer.serialize(user).map_err(|error| ApiError {
+                    status_code: StatusCode::INTERNAL_SERVER_ERROR,
+                    message: format!("error while writing record:{}", error),
+                });
             }
 
-            let _ = writer.flush().map_err(
-                |error | ApiError{
-                    status_code:StatusCode::INTERNAL_SERVER_ERROR,
-                    message:format!("Error while flushing the csv writer:{}",error)
-                }
-            );
+            let _ = writer.flush().map_err(|error| ApiError {
+                status_code: StatusCode::INTERNAL_SERVER_ERROR,
+                message: format!("Error while flushing the csv writer:{}", error),
+            });
 
-
-            return Ok(Json(
-                ApiResponse{
-                    status_code:StatusCode::OK.as_u16(),
-                    message:"File created sucessfully".to_string()
-                }
-            ));
-        },
-        Err(_)=>{
-            return Err(
-                ApiError { status_code: StatusCode::INTERNAL_SERVER_ERROR, message:"failed to create new file".to_string() }
-            )
-        }   
+            return Ok(Json(ApiResponse {
+                status_code: StatusCode::OK.as_u16(),
+                message: "File created sucessfully".to_string(),
+            }));
+        }
+        Err(_) => {
+            return Err(ApiError {
+                status_code: StatusCode::INTERNAL_SERVER_ERROR,
+                message: "failed to create new file".to_string(),
+            });
+        }
     };
 
-
-
 }
+
+
+/*
+
+1) Our (3)
+2) Kaka kaki (3)
+3) Radhu (4)
+4) Raji (3)
+5) Attya (4)
+6) Pinky (3)
+7) Mavshi (4)
+
+Total: 25
+
+Cake cutting + Dinner
+
+1) Hotel Booking + Advance 
+2) Greeting card
+
+*/
+

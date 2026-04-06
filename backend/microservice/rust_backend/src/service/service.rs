@@ -21,14 +21,9 @@ let error = response.text().await.unwrap();
 
 }
 
-let users= response.json::Vec<Users>()
+let users= response.json::Vec<Users>()  // deserializing the response into required format.
     .await
     .map_err()
-
-
-
-
-
 
 */
 
