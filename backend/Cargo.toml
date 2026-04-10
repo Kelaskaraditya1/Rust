@@ -2,8 +2,11 @@
 members = [
     "crud_csv",
     "crud_csv/entity",
-    "crud_csv/migration"
-, "microservice/rust_backend"]
+    "crud_csv/migration", 
+    "microservice/rust_backend",
+    "solace/producer",
+    "solace/consumer"
+]
 
 [workspace.dependencies]
 sea-orm = { version = "1.1.19", features = ["sqlx-postgres", "runtime-tokio-rustls", "macros"] }
